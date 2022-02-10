@@ -11,10 +11,13 @@ import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+
+import java.util.ArrayList;
 
 public class GameView extends View implements SensorEventListener {
 
@@ -36,8 +39,14 @@ public class GameView extends View implements SensorEventListener {
 
     //센서 관련
     SensorManager sensorM;
-
     int h_int;
+
+    //미사일 관련
+    Bitmap missile;
+    //미사일 객체를 ArrayList저장
+    ArrayList<Missile> missList = new ArrayList<>();
+    //미사일의 크기, 위치값
+    int missileW, missileH, missileX, missileY;
 
     public GameView(Context context) {
         super(context);
@@ -58,6 +67,7 @@ public class GameView extends View implements SensorEventListener {
         unit = BitmapFactory.decodeResource(getResources(), R.mipmap.gunship);
         rabbit[0] = BitmapFactory.decodeResource(getResources(), R.mipmap.rabbit);
         rabbit[1] = BitmapFactory.decodeResource(getResources(), R.mipmap.rabbit2);
+        missile = BitmapFactory.decodeResource(getResources(), R.mipmap.missile);
 
         //배경 1, 2의 y좌표값
         back1_y = 0;
@@ -86,6 +96,9 @@ public class GameView extends View implements SensorEventListener {
 
         rabbitW = rabbit[0].getWidth();//토끼이미지의 너비
         rabbitH = rabbit[0].getWidth();//토끼이미지의 높이
+
+        missileW = missile.getWidth();//원본 미사일 이미지의 너비
+        missileH = missile.getHeight();//원본 미사일 이미지의 높이
 
         unitW = unit.getWidth();//원본 이미지의 너비
         unitH = unit.getHeight();//원본 이미지의 높이
@@ -120,8 +133,15 @@ public class GameView extends View implements SensorEventListener {
         canvas.drawBitmap(unit, unitX, unitY, null);
         canvas.drawBitmap(rabbit[imageIndex], rabbitX, rabbitY, null);
 
+        //미사일 그려주기
+        for(int i = 0; i < missList.size(); i++){
+            Missile ms = missList.get(i);
+            canvas.drawBitmap(missile, ms.x, ms.y, null);
+        }
+
         scrollBack();
         doRabbit();
+        checkMissile();
     }
 
     //토끼 이미지를 움직이는 메소드
@@ -166,12 +186,64 @@ public class GameView extends View implements SensorEventListener {
 
     //센서 관련 메소드
     @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
+    public void onSensorChanged(SensorEvent event) {
+        //센서의 변경사항이 감지되면 호출되는 메소드
+        //x축의 값을 unitX에 저장
+        unitX -= (int)event.values[0] * 5;
 
+        //화면을 벗어나지 않도록 제어
+        if(unitX <= 0){
+            unitX = 0;
+        }
+
+        if(unitX >= width - unitW){
+            unitX = width - unitW;
+        }
+
+        //비행기이 y좌표값
+        unitY +=(int)event.values[1] * 5;
+
+        //화면을 벗어나지 않도록 제어
+        if(unitY < 0){
+            unitY = 0;
+        }
+
+        if(unitY >= height - unitH){
+            unitY = height - unitH;
+        }
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
+        //센서의 반응 속도
+    }
 
+    //화면을 터치 감지
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        //화면이 터치되면 미사일을 발사
+        if(event.getAction() == MotionEvent.ACTION_DOWN){
+            Missile m1 = new Missile(unitX, unitY);
+            missList.add(m1);
+        }
+        return true;
+    }
+
+    //미사일 이동 메소드
+    private void checkMissile(){
+        if(missList.size() > 0){
+
+            for(int i = 0; i < missList.size(); i++){
+                Missile ms = missList.get(i);
+                ms.move();
+
+                if(ms.isDead()){
+                    //미사일의 y좌표가 화면을 벗어났다고 판단되면
+                    //ArrayList에서 미사일을 제거
+                    missList.remove(ms);
+                }
+            }//for
+        }
     }
 }
