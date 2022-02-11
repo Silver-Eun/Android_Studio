@@ -1,6 +1,11 @@
 package ddazua.hs.my_shooting;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Notification;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -8,13 +13,17 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -43,10 +52,16 @@ public class GameView extends View implements SensorEventListener {
 
     //미사일 관련
     Bitmap missile;
+
     //미사일 객체를 ArrayList저장
     ArrayList<Missile> missList = new ArrayList<>();
     //미사일의 크기, 위치값
     int missileW, missileH, missileX, missileY;
+
+    //게이지 객체와 게이지의 위치, 크기
+    Gauge gauge;
+    int gaugeX, gaugeY, gaugeW, gaugeH;
+    boolean finish;//게임이 종료된 후 다이얼로그가 중복되어 나오지 않도록 하기 위한 변수
 
     public GameView(Context context) {
         super(context);
@@ -75,8 +90,29 @@ public class GameView extends View implements SensorEventListener {
 
         init();
         initSensor();
+        initGauge();
 
         handler.sendEmptyMessage(0);
+
+    }//생성자
+
+    private void initGauge(){
+
+        //게이지 너비
+        gaugeW = (width/10) * 9;
+        //게이지 높이
+        gaugeH = height / 20;
+
+        gaugeX = (width - gaugeW)/2;
+        gaugeY = gaugeX;
+
+        //게이지 객체
+        gauge = new Gauge(gaugeX, gaugeY, gaugeW, gaugeH);
+
+        gauge.initGauge();
+
+        //에너지 감소량 설정
+        gauge.setStep(30);
     }
 
     private void initSensor(){
@@ -88,6 +124,7 @@ public class GameView extends View implements SensorEventListener {
 
     //초기화
     private void init(){
+        //배경과 비행기 등의 사이즈를 재설정
         back1 = Bitmap.createScaledBitmap(back1, width, height + 15, false);
         back2 = Bitmap.createScaledBitmap(back2, width, height + 15, false);
 
@@ -105,7 +142,8 @@ public class GameView extends View implements SensorEventListener {
 
         unitX = width/2;
         unitY = height - 300;
-    }
+
+    }//init()
 
     //게임 진행 핸들러
     Handler handler = new Handler(){
@@ -122,6 +160,7 @@ public class GameView extends View implements SensorEventListener {
 
             invalidate(); //화면갱신 -onDraw()
             handler.sendEmptyMessageDelayed(0, 10);
+
         }
     };
 
@@ -130,8 +169,12 @@ public class GameView extends View implements SensorEventListener {
 
         canvas.drawBitmap(back1, 0, back1_y, null);
         canvas.drawBitmap(back2, 0, back2_y, null);
-        canvas.drawBitmap(unit, unitX, unitY, null);
+
+        //에너지 그리기
+        canvas.drawBitmap(gauge.imgGauge, gauge.x, gauge.y, null);
+
         canvas.drawBitmap(rabbit[imageIndex], rabbitX, rabbitY, null);
+        canvas.drawBitmap(unit, unitX, unitY, null);
 
         //미사일 그려주기
         for(int i = 0; i < missList.size(); i++){
@@ -142,7 +185,9 @@ public class GameView extends View implements SensorEventListener {
         scrollBack();
         doRabbit();
         checkMissile();
-    }
+        crash();
+
+    }//progressState()
 
     //토끼 이미지를 움직이는 메소드
     private void doRabbit(){
@@ -163,9 +208,61 @@ public class GameView extends View implements SensorEventListener {
         }
     }
 
+    //미사일과 토끼 이미지의 충돌체크 메소드
+    private void crash(){
+        //모든 미사일 객체는 x좌표를 가지고 있다
+        //적 기체 또한 좌료를 가지고 있기 때문에 미사일의 좌표와
+        // 적 기체의 영역을 비교하여 충돌을 알아낼 수 있다
+        for(int i = 0; i < missList.size(); i++){
+
+           Missile ms = missList.get(i);
+
+            if(ms.x > rabbitX && ms.x < rabbitX + rabbitW &&
+            ms.y > rabbitY && ms.y < rabbitY + rabbitH){
+
+               gauge.progress();//에너지 감소소
+               missList.remove(ms);
+
+               if(gauge.isTimeout()){
+                   if(!finish){
+                       finish = true;
+
+                       //게임종료시 다이얼로그 호출
+                       AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+                       dialog.setMessage("restart?");
+                       dialog.setTitle("GameOver");
+
+                       dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                           @Override
+                           public void onClick(DialogInterface dialogInterface, int which) {
+                               //게임 재시작
+                               Intent i = new Intent(context, BackScrollActivity.class);
+                               context.startActivity(i);
+                               ((Activity)context).finish();
+                           }
+                       });
+
+                       dialog.setNegativeButton("Exit", new DialogInterface.OnClickListener() {
+                           @Override
+                           public void onClick(DialogInterface dialogInterface, int which) {
+
+                               ((Activity)context).finish();
+                           }
+                       });
+                       //다이얼로그를 휴댜폰의 뒤로가기 버튼으로 취소하지 못하게 하는 속성
+                       dialog.setCancelable(false);
+
+                       dialog.show();
+
+                   }
+               }
+            }
+        }
+    }
+
+
     //배경을 움직이기 위한 메소드
     private void scrollBack(){
-
         back1_y += 5;
         back2_y += 5;
 
@@ -180,8 +277,8 @@ public class GameView extends View implements SensorEventListener {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        this.canvas = canvas;
-        progressState();
+         this.canvas = canvas;
+         progressState();
     }
 
     //센서 관련 메소드
