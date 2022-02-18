@@ -2,9 +2,11 @@ package ddazua.hs.jsptestproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,35 +21,54 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class RegisterActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     EditText edit_id, edit_pwd;
-    Button btn_regi;
+    Button btn_login, btn_regi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(R.layout.activity_login);
 
         edit_id = findViewById(R.id.edit_id);
         edit_pwd = findViewById(R.id.edit_pwd);
+        btn_login = findViewById(R.id.btn_login);
         btn_regi = findViewById(R.id.btn_regi);
 
         btn_regi.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                Intent i = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(i);
+                finish();
+            }
+        });
+
+        btn_login.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //로그인을 위한 아이디와 비밀번호를 서버로 전송
                 String id = edit_id.getText().toString();
                 String pwd = edit_pwd.getText().toString();
-                String result = "id="+id+"&pwd"+pwd;//서버로 전달할 파라미터
 
-                new Task().execute(result, "type_regi");
+                String result = "id="+id+"&pwd="+pwd;
+
+                try{
+
+                    new LoginTask().execute(result, "type_login");
+                }catch (Exception e){
+
+                }
+
             }
         });
     }//onCreate()
 
-    //회원가입용 Task클래스
-    class Task extends AsyncTask<String, Void, String>{
+    //로그인용 Task클래스
+    class LoginTask extends AsyncTask<String, Void, String>{
 
         //서버의 IP번호
         public String ip = "192.168.0.7";
@@ -81,7 +102,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                     StringBuffer buffer = new StringBuffer();
                     while((str = reader.readLine())!=null){
-                            buffer.append(str);
+                        buffer.append(str);
                     }//while
 
                     //서버에서 넘겨준 JSON타입의 결과값
@@ -93,9 +114,9 @@ public class RegisterActivity extends AppCompatActivity {
                     String result = jobject.optString("result");
 
                     if(result.equalsIgnoreCase("success")){
-                        receiveMsg = "regi success";
+                        receiveMsg = "login success";
                     }else{
-                        receiveMsg = "regi failed";
+                        receiveMsg = "login failed";
                     }
                 }
 
@@ -107,11 +128,10 @@ public class RegisterActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String s) {
-            Toast.makeText(RegisterActivity.this, s, Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginActivity.this, s, Toast.LENGTH_SHORT).show();
 
-            if(s.equalsIgnoreCase("regi success")){
-                //가입 성공시 로그인 페이지로 화면 전환
-                Intent i = new Intent(RegisterActivity.this, LoginActivity.class);
+            if(s.equalsIgnoreCase("login success")){
+                Intent i = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(i);
                 finish();
             }
