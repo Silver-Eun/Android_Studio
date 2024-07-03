@@ -1,1 +1,2 @@
-Android_Studio
+ddazua 온라인 강의 수강
+- 안드로이드 스튜디오를 통합 앱 개발 기초
