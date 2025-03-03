@@ -1,0 +1,120 @@
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/Text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="37dp"
+        android:text="선택을 시작하시겠습니까?"
+        app:layout_constraintBottom_toTopOf="@+id/ChkAgree"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/ChkAgree"
+        android:layout_width="79dp"
+        android:layout_height="38dp"
+        android:text="시작함"
+        app:layout_constraintBottom_toTopOf="@+id/Text2"
+        app:layout_constraintEnd_toEndOf="@+id/BtnOK"
+        app:layout_constraintStart_toStartOf="@+id/Text1"
+        app:layout_constraintTop_toBottomOf="@+id/Text1" />SS
+
+    <TextView
+        android:id="@+id/Text2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="좋아하는 애완동물은?"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/Rgroup1"
+        app:layout_constraintStart_toStartOf="@+id/ChkAgree"
+        app:layout_constraintTop_toBottomOf="@+id/ChkAgree" />
+
+    <Button
+        android:id="@+id/BtnOK"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="35dp"
+        android:text="선택완료"
+        app:layout_constraintBottom_toTopOf="@+id/Text3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Rgroup1" />
+
+    <TextView
+        android:id="@+id/Text3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginLeft="12dp"
+        android:text="강아지가 선택되었습니다"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/Text4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/BtnOK" />
+
+    <TextView
+        android:id="@+id/Text4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:text="고양이가 선택되었습니다"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/Text5"
+        app:layout_constraintStart_toStartOf="@+id/Text3"
+        app:layout_constraintTop_toBottomOf="@+id/Text3" />
+
+    <RadioGroup
+        android:id="@+id/Rgroup1"
+        android:layout_width="182dp"
+        android:layout_height="155dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginBottom="24dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/BtnOK"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Text2">
+
+        <RadioButton
+            android:id="@+id/RdoDog"
+            android:layout_width="107dp"
+            android:layout_height="49dp"
+            android:text="강아지" />
+
+        <RadioButton
+            android:id="@+id/RdoCat"
+            android:layout_width="112dp"
+            android:layout_height="48dp"
+            android:text="고양이" />
+
+        <RadioButton
+            android:id="@+id/RdoRabbit"
+            android:layout_width="116dp"
+            android:layout_height="48dp"
+            android:text="토끼" />
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/Text5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginBottom="265dp"
+        android:text="토끼가 선택되었습니다"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/Text4"
+        app:layout_constraintTop_toBottomOf="@+id/Text4" />
+</androidx.constraintlayout.widget.ConstraintLayout>

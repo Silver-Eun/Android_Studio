@@ -1,0 +1,50 @@
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:columnCount="3"
+    android:rowCount="3"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/button"
+        android:layout_row="0"
+        android:layout_column="0"
+        android:layout_margin="2dp"
+        android:text="Button1" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_row="0"
+        android:layout_column="1"
+        android:layout_margin="2dp"
+        android:text="Button2" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_row="0"
+        android:layout_column="2"
+        android:layout_rowSpan="2"
+        android:layout_gravity="fill_vertical"
+        android:layout_margin="2dp"
+        android:text="Button3" />
+
+    <Button
+        android:id="@+id/button4"
+        android:layout_row="1"
+        android:layout_column="0"
+        android:layout_columnSpan="2"
+        android:layout_gravity="fill_horizontal"
+        android:layout_margin="2dp"
+        android:text="Button4" />
+
+    <Button
+        android:id="@+id/button5"
+        android:layout_row="2"
+        android:layout_column="0"
+        android:layout_columnSpan="3"
+        android:layout_margin="2dp"
+        android:layout_gravity="fill_horizontal"
+        android:text="Button5" />
+</GridLayout>
